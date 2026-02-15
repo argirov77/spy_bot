@@ -1,3 +1,2 @@
-aiogram
-httpx
-python-dotenv
+aiogram==3.18.0
+httpx==0.28.1

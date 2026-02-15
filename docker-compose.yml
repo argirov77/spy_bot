@@ -13,6 +13,11 @@ services:
       - pgdata:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d spy"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   api:
     build: ./services/api
@@ -20,9 +25,15 @@ services:
     env_file:
       - .env
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     ports:
       - "8000:8000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
 
   bot:
     build: ./services/bot
@@ -30,7 +41,8 @@ services:
     env_file:
       - .env
     depends_on:
-      - api
+      api:
+        condition: service_healthy
 
 volumes:
   pgdata:
